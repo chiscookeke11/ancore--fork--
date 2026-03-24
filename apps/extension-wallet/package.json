@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "pnpm --dir ../.. --filter @ancore/ui-kit build && vitest run"
     "build": "tsc && vite build",
     "test": "pnpm --dir ../.. --filter @ancore/ui-kit build && vitest run",
     "test:watch": "vitest",
