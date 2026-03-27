@@ -3,8 +3,7 @@
  * Implements PBKDF2 key derivation and AES-GCM encryption/decryption
  */
 
- 
-type BufferSource = ArrayBufferView | ArrayBuffer;
+/* eslint-disable no-undef */
 
 const PBKDF2_ITERATIONS = 100000;
 const SALT_LENGTH = 16;
