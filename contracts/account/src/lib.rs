@@ -20,9 +20,7 @@
 //! - `session_key_added`: Emitted when a session key is added with public_key and expires_at
 //! - `session_key_revoked`: Emitted when a session key is revoked with public_key
 
-use soroban_sdk::{
-    contract, contractimpl, contracterror, contracttype, Address, BytesN, Env, Vec,
-};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, BytesN, Env, Vec};
 
 /// Contract error types for structured error handling
 #[contracterror]
@@ -92,7 +90,6 @@ const DAY_IN_LEDGERS: u32 = 17280; // 24 hours * 60 min * 60 sec / 5 sec per led
 const INSTANCE_BUMP_AMOUNT: u32 = 30 * DAY_IN_LEDGERS; // 30 days
 const INSTANCE_BUMP_THRESHOLD: u32 = 15 * DAY_IN_LEDGERS; // 15 days
 
-
 #[contract]
 pub struct AncoreAccount;
 
@@ -108,7 +105,9 @@ impl AncoreAccount {
         env.storage().instance().set(&DataKey::Nonce, &0u64);
 
         // Extend instance TTL
-        env.storage().instance().extend_ttl(INSTANCE_BUMP_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_BUMP_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // Emit initialized event
         env.events().publish((events::initialized(&env),), owner);
@@ -126,10 +125,7 @@ impl AncoreAccount {
 
     /// Get the current nonce
     pub fn get_nonce(env: Env) -> Result<u64, ContractError> {
-        Ok(env.storage()
-            .instance()
-            .get(&DataKey::Nonce)
-            .unwrap_or(0))
+        Ok(env.storage().instance().get(&DataKey::Nonce).unwrap_or(0))
     }
 
     /// Execute a transaction: validate nonce, perform cross-contract call, increment nonce.
@@ -153,17 +149,20 @@ impl AncoreAccount {
 
         // Get nonce before incrementing
         let current_nonce: u64 = Self::get_nonce(env.clone())?;
-        
+
         if expected_nonce != current_nonce {
             panic!("Invalid nonce");
         }
 
-
         // Increment nonce
-        env.storage().instance().set(&DataKey::Nonce, &(current_nonce + 1));
+        env.storage()
+            .instance()
+            .set(&DataKey::Nonce, &(current_nonce + 1));
 
         // Extend instance TTL to keep contract alive
-        env.storage().instance().extend_ttl(INSTANCE_BUMP_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        env.storage()
+            .instance()
+            .extend_ttl(INSTANCE_BUMP_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // Emit executed event with transaction details
         env.events()
@@ -237,7 +236,7 @@ impl AncoreAccount {
     /// Helper to cleanly extend session key TTL
     fn extend_session_key_ttl(env: &Env, public_key: &BytesN<32>, expires_at: u64) {
         let current_timestamp = env.ledger().timestamp();
-        
+
         // Auto-detect if expires_at is using ms vs s. ms timestamps are > 100_000_000_000
         let expires_at_secs = if expires_at > 100_000_000_000 {
             expires_at / 1000
@@ -251,7 +250,7 @@ impl AncoreAccount {
         } else {
             DAY_IN_LEDGERS // 1 day default buffer
         };
-        
+
         let threshold = ledgers_to_live.saturating_sub(DAY_IN_LEDGERS / 2); // refresh when less than half day buffer
 
         env.storage().persistent().extend_ttl(
@@ -265,7 +264,10 @@ impl AncoreAccount {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::{Address as _, Events}, Address, Env};
+    use soroban_sdk::{
+        testutils::{Address as _, Events},
+        Address, Env,
+    };
 
     #[test]
     fn test_initialize() {
@@ -294,11 +296,12 @@ mod test {
         assert_eq!(events_list.len(), 1);
         let (_contract, topics, data) = events_list.get_unchecked(0).clone();
         assert_eq!(topics.len(), 1);
-        
+
         // Convert topic to Symbol for comparison
-        let topic_symbol: soroban_sdk::Symbol = soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
+        let topic_symbol: soroban_sdk::Symbol =
+            soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
         assert_eq!(topic_symbol, events::initialized(&env));
-        
+
         // Verify owner address is in the event data
         let event_owner: Address = soroban_sdk::FromVal::from_val(&env, &data);
         assert_eq!(event_owner, owner);
@@ -347,11 +350,12 @@ mod test {
         assert!(events_list.len() >= 2);
         let (_contract, topics, data) = events_list.get_unchecked(1).clone();
         assert_eq!(topics.len(), 1);
-        
+
         // Convert topic to Symbol for comparison
-        let topic_symbol: soroban_sdk::Symbol = soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
+        let topic_symbol: soroban_sdk::Symbol =
+            soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
         assert_eq!(topic_symbol, events::session_key_added(&env));
-        
+
         // Verify data is (public_key, expires_at)
         let data_tuple: (BytesN<32>, u64) = soroban_sdk::FromVal::from_val(&env, &data);
         assert_eq!(data_tuple.0, session_pk);
@@ -381,11 +385,12 @@ mod test {
         assert!(events_list.len() >= 3);
         let (_contract, topics, data) = events_list.get_unchecked(2).clone();
         assert_eq!(topics.len(), 1);
-        
+
         // Convert topic to Symbol for comparison
-        let topic_symbol: soroban_sdk::Symbol = soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
+        let topic_symbol: soroban_sdk::Symbol =
+            soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
         assert_eq!(topic_symbol, events::session_key_revoked(&env));
-        
+
         // Verify public_key is in the event data
         let event_pk: BytesN<32> = soroban_sdk::FromVal::from_val(&env, &data);
         assert_eq!(event_pk, session_pk);
@@ -413,11 +418,12 @@ mod test {
         assert!(events_list.len() >= 2);
         let (_contract, topics, data) = events_list.get_unchecked(1).clone();
         assert_eq!(topics.len(), 1);
-        
+
         // Convert topic to Symbol for comparison
-        let topic_symbol: soroban_sdk::Symbol = soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
+        let topic_symbol: soroban_sdk::Symbol =
+            soroban_sdk::FromVal::from_val(&env, &topics.get_unchecked(0));
         assert_eq!(topic_symbol, events::executed(&env));
-        
+
         // Verify data is (to, function, nonce)
         let data_tuple: (Address, soroban_sdk::Symbol, u64) =
             soroban_sdk::FromVal::from_val(&env, &data);
@@ -482,7 +488,7 @@ mod test {
 
         assert_eq!(client.get_nonce(), 1);
     }
-    
+
     #[test]
     fn test_refresh_session_key_ttl() {
         let env = Env::default();
@@ -499,10 +505,10 @@ mod test {
         let permissions = Vec::new(&env);
 
         client.add_session_key(&session_pk, &expires_at, &permissions);
-        
+
         // This validates the function compiles and runs successfully
         client.refresh_session_key_ttl(&session_pk);
-        
+
         let session_key = client.get_session_key(&session_pk);
         assert!(session_key.is_some());
     }
