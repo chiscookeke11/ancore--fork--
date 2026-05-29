@@ -15,39 +15,43 @@ Ancore brings advanced account abstraction capabilities to Stellar/Soroban, enab
 
 ## Repository Structure
 
-This is a monorepo containing:
+This is a monorepo containing the following checked top-level folders and workspace modules:
+
+<!-- docs-structure-check:start -->
 
 ```
 ancore/
-├── apps/                     # User-facing applications
-│   ├── extension-wallet/     # Browser extension wallet
-│   ├── mobile-wallet/        # React Native mobile app
-│   └── web-dashboard/        # Web-based account management
-│
-├── packages/                 # Public SDKs and libraries
-│   ├── core-sdk/             # Main SDK for developers
-│   ├── account-abstraction/  # Account abstraction primitives
-│   ├── stellar/              # Stellar/Soroban utilities
-│   ├── crypto/               # Cryptographic utilities
-│   ├── ui-kit/               # Shared UI components
-│   └── types/                # Shared TypeScript types
-│
-├── contracts/                # Soroban smart contracts
-│   ├── account/              # Core account contract
-│   ├── validation-modules/   # Planned pluggable validation module scaffolds
-│   ├── invoice/              # Planned invoice contract scaffolds
-│   └── upgrade/              # Planned upgrade contract scaffolds
-│
-├── services/                 # Optional infrastructure
-│   ├── relayer/              # Transaction relay service
-│   ├── indexer/              # Blockchain indexer
-│   └── ai-agent/             # Planned AI orchestration service scaffold
-│
-└── docs/                     # Documentation
-    ├── architecture/         # System architecture
-    ├── security/             # Security model & audits
-    └── guides/               # Developer guides
+├── __tests__/                 # Repository-level regression tests
+├── apps/                      # User-facing applications
+│   ├── extension-wallet/      # Browser extension wallet
+│   ├── mobile-wallet/         # React Native mobile app
+│   └── web-dashboard/         # Web-based account management
+├── contracts/                 # Soroban smart contracts and contract tooling
+│   ├── account/               # Core account contract
+│   ├── invoice/               # Planned invoice contract scaffolds
+│   ├── scripts/               # Contract helper scripts
+│   ├── upgrade/               # Planned upgrade contract scaffolds
+│   └── validation-modules/    # Planned pluggable validation module scaffolds
+├── docs/                      # Documentation
+├── packages/                  # Public SDKs and shared libraries
+│   ├── account-abstraction/   # Account abstraction primitives
+│   ├── core-sdk/              # Main SDK for developers
+│   ├── crypto/                # Cryptographic utilities
+│   ├── stellar/               # Stellar/Soroban utilities
+│   ├── types/                 # Shared TypeScript types package
+│   └── ui-kit/                # Shared UI components
+├── scripts/                   # Repository automation and CI helpers
+├── services/                  # Optional infrastructure
+│   ├── ai-agent/              # Planned AI orchestration service scaffold
+│   ├── indexer/               # Blockchain indexer
+│   └── relayer/               # Transaction relay service
+├── tools/                     # Standalone maintenance and audit tools
+└── types/                     # Repository-level TypeScript declarations
 ```
+
+<!-- docs-structure-check:end -->
+
+Keep the managed block above synchronized with the on-disk repository layout. Run `pnpm docs:check-structure` after adding, removing, or renaming top-level folders or modules under `apps/`, `contracts/`, `packages/`, or `services/`. If the intended source of truth changes, update `scripts/check-docs-structure.mjs` at the same time as this documentation.
 
 ## Security Boundaries
 

@@ -2,6 +2,43 @@
 
 This document provides a high-level overview of the Ancore system architecture.
 
+## Repository Structure
+
+The architecture depends on these repository modules being present. This managed block is checked by `pnpm docs:check-structure` so architecture docs do not drift from the filesystem.
+
+<!-- docs-structure-check:start -->
+
+- `__tests__/` - repository-level regression tests
+- `apps/` - user-facing applications
+  - `apps/extension-wallet/` - browser extension wallet
+  - `apps/mobile-wallet/` - React Native mobile app
+  - `apps/web-dashboard/` - web-based account management
+- `contracts/` - Soroban smart contracts and contract tooling
+  - `contracts/account/` - core account contract
+  - `contracts/invoice/` - planned invoice contract scaffolds
+  - `contracts/scripts/` - contract helper scripts
+  - `contracts/upgrade/` - planned upgrade contract scaffolds
+  - `contracts/validation-modules/` - planned pluggable validation module scaffolds
+- `docs/` - documentation
+- `packages/` - public SDKs and shared libraries
+  - `packages/account-abstraction/` - account abstraction primitives
+  - `packages/core-sdk/` - main SDK for developers
+  - `packages/crypto/` - cryptographic utilities
+  - `packages/stellar/` - Stellar/Soroban utilities
+  - `packages/types/` - shared TypeScript types package
+  - `packages/ui-kit/` - shared UI components
+- `scripts/` - repository automation and CI helpers
+- `services/` - optional infrastructure
+  - `services/ai-agent/` - planned AI orchestration service scaffold
+  - `services/indexer/` - blockchain indexer
+  - `services/relayer/` - transaction relay service
+- `tools/` - standalone maintenance and audit tools
+- `types/` - repository-level TypeScript declarations
+
+<!-- docs-structure-check:end -->
+
+When modules move, update this block and the matching block in `README.md`, then run `pnpm docs:check-structure`. Adjust `scripts/check-docs-structure.mjs` only when the set of folders that must be documented changes.
+
 ## System Components
 
 ```
