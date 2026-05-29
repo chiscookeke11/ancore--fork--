@@ -198,17 +198,20 @@ export class AccountContract {
 
     const raw = txBuilder.build();
 
-    const sim: any = await server.simulateTransaction(raw);
+    const sim = (await server.simulateTransaction(raw)) as {
+      error?: string;
+      message?: string;
+      result?: {
+        retval?: xdr.ScVal;
+      };
+    };
 
-    if (sim && typeof sim === 'object' && ('error' in sim || 'message' in sim)) {
-      const errMsg =
-        (sim as { error?: string }).error ??
-        (sim as { message?: string }).message ??
-        'Simulation failed';
+    if (sim.error !== undefined || sim.message !== undefined) {
+      const errMsg = sim.error ?? sim.message ?? 'Simulation failed';
       throw mapContractError(String(errMsg), sim);
     }
 
-    const result = (sim as any)?.result?.retval as xdr.ScVal | undefined;
+    const result = sim.result?.retval;
     if (result === undefined) {
       throw mapContractError('No return value from simulation', sim);
     }

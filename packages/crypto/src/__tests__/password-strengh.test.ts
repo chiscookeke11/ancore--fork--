@@ -107,10 +107,9 @@ describe('validatePasswordStrength()', () => {
     });
 
     it('rejects "admin" pattern password', () => {
-      const result = validatePasswordStrength('adminADMIN1234!');
+      expectWeak(validatePasswordStrength('adminADMIN1234!'));
       // matchesWeakPattern — "admin" repeated
-      const result2 = validatePasswordStrength('adminadminadmin1!');
-      expectWeak(result2);
+      expectWeak(validatePasswordStrength('adminadminadmin1!'));
     });
   });
 

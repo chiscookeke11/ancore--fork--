@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer';
+import { TextDecoder, TextEncoder } from 'node:util';
 
 const PBKDF2_ITERATIONS = 100000;
 const MAX_PBKDF2_ITERATIONS = 600000;
@@ -16,7 +17,7 @@ export interface EncryptedSecretKeyPayload {
   ciphertext: string;
 }
 
-function getCrypto(): Crypto {
+function getCrypto(): NonNullable<typeof globalThis.crypto> {
   if (!globalThis.crypto?.subtle) {
     throw new Error('WebCrypto API is not available in this environment.');
   }
@@ -33,11 +34,7 @@ function fromBase64(value: string): Uint8Array {
   return Uint8Array.from(Buffer.from(value, 'base64'));
 }
 
-async function deriveEncryptionKey(
-  password: string,
-  salt: Uint8Array,
-  iterations: number
-): Promise<CryptoKey> {
+async function deriveEncryptionKey(password: string, salt: Uint8Array, iterations: number) {
   const cryptoApi = getCrypto();
   const passwordKey = await cryptoApi.subtle.importKey(
     'raw',
@@ -162,11 +159,7 @@ export async function decryptSecretKey(
     const salt = fromBase64(validatedPayload.salt);
     const iv = fromBase64(validatedPayload.iv);
     const ciphertext = fromBase64(validatedPayload.ciphertext);
-    const encryptionKey = await deriveEncryptionKey(
-      password,
-      salt,
-      validatedPayload.iterations
-    );
+    const encryptionKey = await deriveEncryptionKey(password, salt, validatedPayload.iterations);
 
     const plaintext = await cryptoApi.subtle.decrypt(
       {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ChangeEvent, useState } from 'react';
 import {
   AddressInput,
   Button,
@@ -70,7 +70,9 @@ export function SendScreen({ balance, service, pollIntervalMs }: SendScreenProps
           placeholder="G..."
           value={form.to}
           error={send.errors.to}
-          onChange={(event) => setForm((current) => ({ ...current, to: event.target.value }))}
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            setForm((current) => ({ ...current, to: event.target.value }))
+          }
         />
 
         <FormAmountInput
@@ -80,7 +82,7 @@ export function SendScreen({ balance, service, pollIntervalMs }: SendScreenProps
           value={form.amount}
           error={send.errors.amount}
           onMax={onMax}
-          onChange={(event) =>
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
             setForm((current) => ({
               ...current,
               amount: event.target.value,

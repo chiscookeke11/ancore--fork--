@@ -37,6 +37,9 @@ importers:
       '@ancore/core-sdk':
         specifier: workspace:*
         version: link:../../packages/core-sdk
+      '@ancore/stellar':
+        specifier: workspace:*
+        version: link:../../packages/stellar
       '@ancore/types':
         specifier: workspace:*
         version: link:../../packages/types

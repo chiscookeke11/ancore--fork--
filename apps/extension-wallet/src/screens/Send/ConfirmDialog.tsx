@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ChangeEvent, useState } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle, PasswordInput } from '@ancore/ui-kit';
 import type { SendTransactionDraft } from '@/hooks/useSendTransaction';
 
@@ -29,7 +29,7 @@ export function ConfirmDialog({ transaction, error, loading, onBack, onSign }: C
         <PasswordInput
           label="Wallet password"
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)}
           error={error}
         />
 

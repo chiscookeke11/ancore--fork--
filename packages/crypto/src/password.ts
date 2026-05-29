@@ -19,6 +19,26 @@ const STRONG_LENGTH = 16;
  * Common weak passwords / patterns that PBKDF2 cannot compensate for.
  * Stored as lowercase for case-insensitive comparison.
  */
+const COMMON_WEAK_TERMS = [
+  'admin',
+  'baseball',
+  'batman',
+  'dragon',
+  'football',
+  'iloveyou',
+  'letmein',
+  'login',
+  'master',
+  'monkey',
+  'password',
+  'princess',
+  'qwerty',
+  'shadow',
+  'sunshine',
+  'superman',
+  'welcome',
+];
+
 const COMMON_WEAK_PATTERNS: RegExp[] = [
   /^(.)\1+$/, // All same character: "aaaaaa", "111111"
   /^(012|123|234|345|456|567|678|789|890|987|876|765|654|543|432|321|210)+$/i, // Pure numeric sequences
@@ -45,7 +65,12 @@ function hasSpecialChar(password: string): boolean {
 }
 
 function matchesWeakPattern(password: string): boolean {
-  return COMMON_WEAK_PATTERNS.some((pattern) => pattern.test(password));
+  const normalizedPassword = password.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  return (
+    COMMON_WEAK_PATTERNS.some((pattern) => pattern.test(password)) ||
+    COMMON_WEAK_TERMS.some((term) => normalizedPassword.includes(term))
+  );
 }
 
 /**

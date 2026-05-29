@@ -103,7 +103,7 @@ export class SecureStorageManager {
         ciphertext as any
       );
       return new TextDecoder().decode(decryptedBuffer);
-    } catch (error: any) {
+    } catch {
       throw new Error('Invalid password or corrupted data');
     }
   }

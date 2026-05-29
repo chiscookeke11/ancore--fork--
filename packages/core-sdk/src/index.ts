@@ -39,9 +39,9 @@ export {
 } from './errors';
 
 export {
-  AncoreClient,
+  AncoreClient as SessionKeyAncoreClient,
   mapExecuteWithSessionKeyError,
-  type AncoreClientOptions,
+  type AncoreClientOptions as SessionKeyAncoreClientOptions,
   type ExecuteWithSessionKeyParams,
   type ExecuteWithSessionKeyResult,
   type SessionKeyExecutionLayer,
