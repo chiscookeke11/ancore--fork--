@@ -11,9 +11,21 @@ vi.mock('@ancore/ui-kit', async (importOriginal) => {
 
 const NOW_MS = 100_000;
 const keys: SessionKeySummary[] = [
-  { publicKey: 'GACTIVEKEY000000000000000000000000000000000000000000000000000000', expiresAt: 200, label: 'Phone' },
-  { publicKey: 'GSECONDKEY00000000000000000000000000000000000000000000000000000', expiresAt: 300, label: 'Laptop' },
-  { publicKey: 'GEXPIREDKEY0000000000000000000000000000000000000000000000000000', expiresAt: 50, label: 'Old device' },
+  {
+    publicKey: 'GACTIVEKEY000000000000000000000000000000000000000000000000000000',
+    expiresAt: 200,
+    label: 'Phone',
+  },
+  {
+    publicKey: 'GSECONDKEY00000000000000000000000000000000000000000000000000000',
+    expiresAt: 300,
+    label: 'Laptop',
+  },
+  {
+    publicKey: 'GEXPIREDKEY0000000000000000000000000000000000000000000000000000',
+    expiresAt: 50,
+    label: 'Old device',
+  },
 ];
 
 describe('SessionKeysPanel bulk revocation confirmation', () => {
