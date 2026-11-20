@@ -264,8 +264,9 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
               Revoke all active session keys?
             </h2>
             <p id="session-key-revoke-description" className="mt-2 text-sm text-muted-foreground">
-              This will revoke {activeKeys.length} active {activeKeys.length === 1 ? 'key' : 'keys'}.
-              Connected dApps and automated tasks using these keys will lose access.
+              This will revoke {activeKeys.length} active{' '}
+              {activeKeys.length === 1 ? 'key' : 'keys'}. Connected dApps and automated tasks using
+              these keys will lose access.
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button
@@ -284,7 +285,8 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
                 onClick={() => void confirmBulkRevoke()}
                 className={[
                   'rounded-md bg-destructive px-3 py-2 text-sm font-medium',
-                  'text-destructive-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+                  'text-destructive-foreground',
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
                 ].join(' ')}
               >
                 Confirm Revoke
