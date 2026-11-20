@@ -84,6 +84,23 @@ describe('SessionKeysPanel bulk revocation confirmation', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
+  it('keeps keyboard focus inside the confirmation dialog', () => {
+    render(<SessionKeysPanel keys={keys} nowMs={NOW_MS} onRevoke={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Revoke all 2 active session keys' }));
+
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    const confirm = screen.getByRole('button', { name: 'Confirm Revoke' });
+
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(document.activeElement).toBe(confirm);
+
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(document.activeElement).toBe(cancel);
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(confirm);
+  });
+
   it('closes the confirmation dialog when Escape is pressed', () => {
     render(<SessionKeysPanel keys={keys} nowMs={NOW_MS} onRevoke={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Revoke all 2 active session keys' }));
