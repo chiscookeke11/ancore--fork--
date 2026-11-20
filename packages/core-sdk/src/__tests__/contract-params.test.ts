@@ -131,9 +131,8 @@ describe('contract parameter ScVal encoders', () => {
     });
 
     it('wraps None and Some options', () => {
-      expect(roundTrip(toScOption(null, (value: number) => toScU32(value))).switch().name).toBe(
-        'scvVoid'
-      );
+      const none = roundTrip(toScOption(null, toScU32));
+      expect(none.switch().name).toBe('scvVoid');
       const some = roundTrip(toScOption(42, (value: number) => toScU32(value)));
       expect(some.switch().name).toBe('scvU32');
       expect(some.u32()).toBe(42);
