@@ -141,15 +141,15 @@ describe('contract parameter ScVal encoders', () => {
     it('encodes Owner as a symbol and SessionKey/Quorum as tagged vectors', () => {
       const owner = roundTrip(toScCallerIdentity(CallerIdentity.Owner));
       expect(owner.switch().name).toBe('scvSymbol');
-      expect(owner.sym()).toBe('Owner');
+      expect(Buffer.from(owner.sym()).toString('utf8')).toBe('Owner');
 
       const sessionKey = toScCallerIdentity(CallerIdentity.SessionKey, toScBytesN32(accountId));
       expect(sessionKey.switch().name).toBe('scvVec');
-      expect(sessionKey.vec()![0].sym()).toBe('SessionKey');
+      expect(Buffer.from(sessionKey.vec()![0].sym()).toString('utf8')).toBe('SessionKey');
 
       const quorum = toScCallerIdentity(CallerIdentity.Quorum, toScAddressVec([accountId]));
       expect(quorum.switch().name).toBe('scvVec');
-      expect(quorum.vec()![0].sym()).toBe('Quorum');
+      expect(Buffer.from(quorum.vec()![0].sym()).toString('utf8')).toBe('Quorum');
     });
 
     it('rejects enum variants that require data when none is supplied', () => {
