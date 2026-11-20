@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionKeysPanel, type SessionKeySummary } from '../SessionKeysPanel';
 
-const toast = vi.fn();
+const { toast } = vi.hoisted(() => ({ toast: vi.fn() }));
 
 vi.mock('@ancore/ui-kit', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@ancore/ui-kit')>();
