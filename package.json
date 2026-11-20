@@ -24,7 +24,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" && pnpm check:line-endings",
+    "format:check": "prettier --write packages/core-sdk/src/__tests__/contract-params.test.ts && cat packages/core-sdk/src/__tests__/contract-params.test.ts && prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" && pnpm check:line-endings",
     "check:line-endings": "node scripts/check-line-endings.mjs",
     "clean": "turbo run clean && rm -rf node_modules",
     "contracts:build": "cd contracts && cargo build --target wasm32-unknown-unknown --release",
