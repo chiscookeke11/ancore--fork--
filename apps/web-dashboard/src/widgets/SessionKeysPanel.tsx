@@ -71,7 +71,7 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        closeBulkRevoke();
+        setIsBulkRevokeOpen(false);
         return;
       }
 
