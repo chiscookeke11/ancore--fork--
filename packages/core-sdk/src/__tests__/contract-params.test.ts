@@ -1,5 +1,4 @@
 import {
-  Address,
   Keypair,
   Operation,
   nativeToScVal,
@@ -35,7 +34,7 @@ describe('contract parameter ScVal encoders', () => {
       const encoded = toScAddress(address);
       expect(encoded.switch().name).toBe('scvAddress');
       expect(roundTrip(encoded).switch().name).toBe('scvAddress');
-      expect(scValToNative(roundTrip(encoded))).toBeInstanceOf(Address);
+      expect(scValToNative(roundTrip(encoded))).toBe(address);
     });
 
     it('rejects values that are not Stellar addresses', () => {
