@@ -143,25 +143,17 @@ describe('contract parameter ScVal encoders', () => {
       expect(owner.switch().name).toBe('scvSymbol');
       expect(owner.sym()).toBe('Owner');
 
-      const sessionKey = toScCallerIdentity(
-        CallerIdentity.SessionKey,
-        toScBytesN32(accountId)
-      );
+      const sessionKey = toScCallerIdentity(CallerIdentity.SessionKey, toScBytesN32(accountId));
       expect(sessionKey.switch().name).toBe('scvVec');
       expect(sessionKey.vec()![0].sym()).toBe('SessionKey');
 
-      const quorum = toScCallerIdentity(
-        CallerIdentity.Quorum,
-        toScAddressVec([accountId])
-      );
+      const quorum = toScCallerIdentity(CallerIdentity.Quorum, toScAddressVec([accountId]));
       expect(quorum.switch().name).toBe('scvVec');
       expect(quorum.vec()![0].sym()).toBe('Quorum');
     });
 
     it('rejects enum variants that require data when none is supplied', () => {
-      expect(() => toScCallerIdentity(CallerIdentity.SessionKey)).toThrow(
-        /Invalid CallerIdentity/
-      );
+      expect(() => toScCallerIdentity(CallerIdentity.SessionKey)).toThrow(/Invalid CallerIdentity/);
       expect(() => toScCallerIdentity(CallerIdentity.Quorum)).toThrow(/Invalid CallerIdentity/);
     });
 
