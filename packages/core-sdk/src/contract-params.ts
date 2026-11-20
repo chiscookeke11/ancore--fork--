@@ -204,7 +204,7 @@ export enum CallerIdentity {
  */
 export function toScCallerIdentity(identity: CallerIdentity, data?: xdr.ScVal): xdr.ScVal {
   if (identity === CallerIdentity.Owner) {
-    return nativeToScVal({ tag: 'Owner', values: undefined }, { type: 'symbol' });
+    return nativeToScVal('Owner', { type: 'symbol' });
   }
 
   if (identity === CallerIdentity.SessionKey && data) {
