@@ -77,7 +77,9 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
 
       if (event.key !== 'Tab' || !confirmationRef.current) return;
       const buttons = Array.from(
-        confirmationRef.current.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')
+        confirmationRef.current.querySelectorAll<HTMLButtonElement>(
+          'button:not(:disabled)'
+        )
       );
       if (buttons.length === 0) return;
 
@@ -138,7 +140,10 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
               ref={bulkRevokeTriggerRef}
               type="button"
               onClick={() => setIsBulkRevokeOpen(true)}
-              className="text-xs font-medium text-destructive hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className={[
+                'text-xs font-medium text-destructive hover:underline',
+                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+              ].join(' ')}
               aria-label={`Revoke all ${activeKeys.length} active session keys`}
             >
               Revoke all ({activeKeys.length})
@@ -155,7 +160,10 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
           </div>
         ) : error ? (
           <div
-            className="flex flex-col items-center justify-center p-4 text-center space-y-2 text-destructive"
+            className={[
+              'flex flex-col items-center justify-center p-4 text-center',
+              'space-y-2 text-destructive',
+            ].join(' ')}
             data-testid="session-keys-error"
           >
             <div className="flex items-center space-x-2">
@@ -168,7 +176,10 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
               <button
                 type="button"
                 onClick={onRetry}
-                className="flex items-center gap-1 text-xs font-medium text-red-700 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-md transition-colors"
+                className={[
+                  'flex items-center gap-1 text-xs font-medium text-red-700 hover:text-red-900',
+                  'bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-md transition-colors',
+                ].join(' ')}
                 data-testid="session-keys-retry-button"
               >
                 <RefreshCw className="h-3 w-3" />
@@ -261,14 +272,20 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
                 ref={cancelRef}
                 type="button"
                 onClick={closeBulkRevoke}
-                className="rounded-md border px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className={[
+                  'rounded-md border px-3 py-2 text-sm',
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+                ].join(' ')}
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => void confirmBulkRevoke()}
-                className="rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className={[
+                  'rounded-md bg-destructive px-3 py-2 text-sm font-medium',
+                  'text-destructive-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+                ].join(' ')}
               >
                 Confirm Revoke
               </button>
