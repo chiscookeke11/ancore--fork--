@@ -103,16 +103,14 @@ describe('contract parameter ScVal encoders', () => {
       (value) => expect(() => toScU64(value)).toThrow(/Invalid u64 value/)
     );
 
-    it.each([
-      0n,
-      -1n,
-      -(2n ** 127n),
-      2n ** 127n - 1n,
-    ])('encodes signed i128 boundary %s', (value) => {
+    it.each([0n, -1n, -(2n ** 127n), 2n ** 127n - 1n])(
+      'encodes signed i128 boundary %s',
+      (value) => {
       const encoded = roundTrip(toScI128(value));
       expect(encoded.switch().name).toBe('scvI128');
-      expect(scValToNative(encoded)).toBe(value);
-    });
+        expect(scValToNative(encoded)).toBe(value);
+      }
+    );
 
     it('accepts decimal string i128 values and rejects malformed strings', () => {
       expect(scValToNative(toScI128('-12345678901234567890'))).toBe(-12345678901234567890n);
@@ -133,8 +131,8 @@ describe('contract parameter ScVal encoders', () => {
     });
 
     it('wraps None and Some options', () => {
-      expect(roundTrip(toScOption(null, (value: number) => toScU32(value))).switch()).toBe(
-        xdr.ScValType.scvVoid()
+      expect(roundTrip(toScOption(null, (value: number) => toScU32(value))).switch().name).toBe(
+        'scvVoid'
       );
       const some = roundTrip(toScOption(42, (value: number) => toScU32(value)));
       expect(some.switch().name).toBe('scvU32');
@@ -146,17 +144,25 @@ describe('contract parameter ScVal encoders', () => {
       expect(owner.switch().name).toBe('scvSymbol');
       expect(owner.sym()).toBe('Owner');
 
-      const sessionKey = toScCallerIdentity(CallerIdentity.SessionKey, toScBytesN32(accountId));
+      const sessionKey = toScCallerIdentity(
+        CallerIdentity.SessionKey,
+        toScBytesN32(accountId)
+      );
       expect(sessionKey.switch().name).toBe('scvVec');
       expect(sessionKey.vec()![0].sym()).toBe('SessionKey');
 
-      const quorum = toScCallerIdentity(CallerIdentity.Quorum, toScAddressVec([accountId]));
+      const quorum = toScCallerIdentity(
+        CallerIdentity.Quorum,
+        toScAddressVec([accountId])
+      );
       expect(quorum.switch().name).toBe('scvVec');
       expect(quorum.vec()![0].sym()).toBe('Quorum');
     });
 
     it('rejects enum variants that require data when none is supplied', () => {
-      expect(() => toScCallerIdentity(CallerIdentity.SessionKey)).toThrow(/Invalid CallerIdentity/);
+      expect(() => toScCallerIdentity(CallerIdentity.SessionKey)).toThrow(
+        /Invalid CallerIdentity/
+      );
       expect(() => toScCallerIdentity(CallerIdentity.Quorum)).toThrow(/Invalid CallerIdentity/);
     });
 
