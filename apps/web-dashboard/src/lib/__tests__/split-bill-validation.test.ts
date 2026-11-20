@@ -7,6 +7,7 @@ import {
   errorsByKey,
   formError,
   PERCENTAGE_TOTAL,
+  MAX_SPLIT_PARTICIPANTS,
   type ShareInput,
 } from '../split-bill-validation';
 
@@ -311,5 +312,82 @@ describe('errorsByKey', () => {
     ]);
 
     expect(byKey).toEqual({ p0: 'first' });
+  });
+});
+
+describe('validateShares — participant limits and duplicate wallets', () => {
+  it('accepts the maximum supported participant count', () => {
+    const participants = Array.from({ length: MAX_SPLIT_PARTICIPANTS }, (_, index) => ({
+      key: `p${index}`,
+      share: '1',
+      address: `G${String(index).padStart(55, 'A')}`,
+    }));
+    const result = validateShares({ mode: 'amount', participants, totalAmount: '50' });
+
+    expect(result.valid).toBe(true);
+    expect(Object.keys(result.amounts)).toHaveLength(MAX_SPLIT_PARTICIPANTS);
+  });
+
+  it('rejects a participant count above the configured maximum', () => {
+    const participants = Array.from({ length: MAX_SPLIT_PARTICIPANTS + 1 }, (_, index) => ({
+      key: `p${index}`,
+      share: '1',
+    }));
+    const result = validateShares({ mode: 'amount', participants, totalAmount: '51' });
+
+    expect(result.valid).toBe(false);
+    expect(formError(result.errors)).toContain(`at most ${MAX_SPLIT_PARTICIPANTS} participants`);
+  });
+
+  it('rejects duplicate Stellar wallet addresses on the later participant row', () => {
+    const result = validateShares({
+      mode: 'amount',
+      participants: [
+        { key: 'first', share: '5', address: 'GABC123' },
+        { key: 'second', share: '5', address: 'GABC123' },
+      ],
+      totalAmount: '10',
+    });
+
+    expect(result.valid).toBe(false);
+    expect(errorsByKey(result.errors).second).toBe('A participant can only be added once.');
+    expect(result.amounts).toEqual({});
+  });
+
+  it('preserves distinct participant addresses', () => {
+    const result = validateShares({
+      mode: 'amount',
+      participants: [
+        { key: 'first', share: '5', address: 'GABC123' },
+        { key: 'second', share: '5', address: 'GDEF456' },
+      ],
+      totalAmount: '10',
+    });
+
+    expect(result.valid).toBe(true);
+  });
+});
+
+describe('validateShares — Stellar stroop precision', () => {
+  it('accepts exact one-stroop shares', () => {
+    const result = validateShares({
+      mode: 'amount',
+      participants: shares('0.0000001', '0.0000002'),
+      totalAmount: '0.0000003',
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.amounts).toEqual({ p0: '0.0000001', p1: '0.0000002' });
+  });
+
+  it('rejects a sum that differs by one full stroop', () => {
+    const result = validateShares({
+      mode: 'amount',
+      participants: shares('0.0000001', '0.0000001'),
+      totalAmount: '0.0000003',
+    });
+
+    expect(result.valid).toBe(false);
+    expect(formError(result.errors)).toContain('0.0000001 short');
   });
 });

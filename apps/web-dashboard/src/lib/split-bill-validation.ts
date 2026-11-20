@@ -23,12 +23,17 @@ const TOLERANCE = 0.5 / 10 ** AMOUNT_DECIMALS;
 /** Percentages must total exactly this. */
 export const PERCENTAGE_TOTAL = 100;
 
+/** Keep a single bill within a manageable participant set. */
+export const MAX_SPLIT_PARTICIPANTS = 50;
+
 /** One row of the participants editor. */
 export interface ShareInput {
   /** Stable row key, echoed back on any error that belongs to this row. */
   key: string;
   /** Raw text from the share field — amount or percentage depending on mode. */
   share: string;
+  /** Optional Stellar address used to prevent charging the same wallet twice. */
+  address?: string;
 }
 
 /** A validation failure tied to a specific row, or to the form as a whole. */
@@ -126,6 +131,34 @@ export function validateShares({
       sum: 0,
       amounts: {},
     };
+  }
+
+  if (participants.length > MAX_SPLIT_PARTICIPANTS) {
+    return {
+      valid: false,
+      errors: [
+        {
+          key: null,
+          message: `A split bill can have at most ${MAX_SPLIT_PARTICIPANTS} participants.`,
+        },
+      ],
+      sum: 0,
+      amounts: {},
+    };
+  }
+
+  const seenAddresses = new Set<string>();
+  for (const participant of participants) {
+    const address = participant.address?.trim();
+    if (!address) continue;
+    if (seenAddresses.has(address)) {
+      errors.push({
+        key: participant.key,
+        message: 'A participant can only be added once.',
+      });
+    } else {
+      seenAddresses.add(address);
+    }
   }
 
   const parsedTotal = totalAmount === undefined ? null : parseDecimal(totalAmount);
