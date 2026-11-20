@@ -106,8 +106,8 @@ describe('contract parameter ScVal encoders', () => {
     it.each([0n, -1n, -(2n ** 127n), 2n ** 127n - 1n])(
       'encodes signed i128 boundary %s',
       (value) => {
-      const encoded = roundTrip(toScI128(value));
-      expect(encoded.switch().name).toBe('scvI128');
+        const encoded = roundTrip(toScI128(value));
+        expect(encoded.switch().name).toBe('scvI128');
         expect(scValToNative(encoded)).toBe(value);
       }
     );
