@@ -49,6 +49,62 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
   shouldThrowOnError = false,
 }) => {
   const { toast } = useToast();
+  const [isBulkRevokeOpen, setIsBulkRevokeOpen] = React.useState(false);
+  const bulkRevokeTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const confirmationRef = React.useRef<HTMLDivElement>(null);
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
+
+  const activeKeys = (keys ?? []).filter((key) =>
+    isSessionKeyActive(
+      { expiresAt: key.expiresAt, publicKey: key.publicKey },
+      nowMs !== undefined ? { nowMs } : undefined
+    )
+  );
+
+  const closeBulkRevoke = () => setIsBulkRevokeOpen(false);
+
+  React.useEffect(() => {
+    if (!isBulkRevokeOpen) return;
+
+    cancelRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeBulkRevoke();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !confirmationRef.current) return;
+      const buttons = Array.from(
+        confirmationRef.current.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')
+      );
+      if (buttons.length === 0) return;
+
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      bulkRevokeTriggerRef.current?.focus();
+    };
+  }, [isBulkRevokeOpen]);
+
+  const confirmBulkRevoke = async () => {
+    closeBulkRevoke();
+    for (const key of activeKeys) {
+      await revokeSessionKey(key.publicKey);
+    }
+  };
 
   if (error && shouldThrowOnError) {
     throw error;
@@ -76,7 +132,20 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
     <Card className={`overflow-hidden ${className}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Session Keys</CardTitle>
-        <Key className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        <div className="flex items-center gap-2">
+          {onRevoke && activeKeys.length > 0 && (
+            <button
+              ref={bulkRevokeTriggerRef}
+              type="button"
+              onClick={() => setIsBulkRevokeOpen(true)}
+              className="text-xs font-medium text-destructive hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              aria-label={`Revoke all ${activeKeys.length} active session keys`}
+            >
+              Revoke all ({activeKeys.length})
+            </button>
+          )}
+          <Key className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -170,6 +239,43 @@ export const SessionKeysPanel: React.FC<SessionKeysPanelProps> = ({
           </ul>
         )}
       </CardContent>
+      {isBulkRevokeOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div
+            ref={confirmationRef}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="session-key-revoke-title"
+            aria-describedby="session-key-revoke-description"
+            className="w-full max-w-md rounded-lg border bg-background p-6 shadow-xl"
+          >
+            <h2 id="session-key-revoke-title" className="text-base font-semibold">
+              Revoke all active session keys?
+            </h2>
+            <p id="session-key-revoke-description" className="mt-2 text-sm text-muted-foreground">
+              This will revoke {activeKeys.length} active {activeKeys.length === 1 ? 'key' : 'keys'}.
+              Connected dApps and automated tasks using these keys will lose access.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                ref={cancelRef}
+                type="button"
+                onClick={closeBulkRevoke}
+                className="rounded-md border px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmBulkRevoke()}
+                className="rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                Confirm Revoke
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };
