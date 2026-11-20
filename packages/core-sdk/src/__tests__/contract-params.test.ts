@@ -1,6 +1,7 @@
 import {
   Address,
   Keypair,
+  Operation,
   nativeToScVal,
   scValToNative,
   StrKey,
@@ -32,8 +33,8 @@ describe('contract parameter ScVal encoders', () => {
   describe('addresses and bytes', () => {
     it.each([accountId, contractId])('encodes %s as a Soroban address', (address) => {
       const encoded = toScAddress(address);
-      expect(encoded.switch()).toBe(xdr.ScValType.scvAddress());
-      expect(roundTrip(encoded).switch()).toBe(xdr.ScValType.scvAddress());
+      expect(encoded.switch().name).toBe('scvAddress');
+      expect(roundTrip(encoded).switch().name).toBe('scvAddress');
       expect(scValToNative(roundTrip(encoded))).toBeInstanceOf(Address);
     });
 
@@ -44,7 +45,7 @@ describe('contract parameter ScVal encoders', () => {
 
     it('encodes an Ed25519 public key as 32 bytes', () => {
       const encoded = toScBytesN32(accountId);
-      expect(encoded.switch()).toBe(xdr.ScValType.scvBytes());
+      expect(encoded.switch().name).toBe('scvBytes');
       expect(Buffer.from(encoded.bytes())).toEqual(
         Buffer.from(StrKey.decodeEd25519PublicKey(accountId))
       );
@@ -59,16 +60,16 @@ describe('contract parameter ScVal encoders', () => {
       const bytes = Uint8Array.from([0, 1, 127, 128, 255]);
       for (const input of [bytes, Buffer.from(bytes)]) {
         const encoded = toScBytes(input);
-        expect(encoded.switch()).toBe(xdr.ScValType.scvBytes());
+        expect(encoded.switch().name).toBe('scvBytes');
         expect(Buffer.from(roundTrip(encoded).bytes())).toEqual(Buffer.from(bytes));
       }
     });
 
     it('encodes address vectors in their original order', () => {
       const encoded = toScAddressVec([accountId, contractId]);
-      expect(encoded.switch()).toBe(xdr.ScValType.scvVec());
+      expect(encoded.switch().name).toBe('scvVec');
       expect(encoded.vec()).toHaveLength(2);
-      expect(encoded.vec()!.every((item) => item.switch() === xdr.ScValType.scvAddress())).toBe(true);
+      expect(encoded.vec()!.every((item) => item.switch().name === 'scvAddress')).toBe(true);
     });
 
     it('rejects invalid addresses in address vectors', () => {
@@ -80,7 +81,7 @@ describe('contract parameter ScVal encoders', () => {
     it('encodes u32 boundaries and round-trips through XDR', () => {
       for (const value of [0, 1, 0xffff_ffff]) {
         const encoded = roundTrip(toScU32(value));
-        expect(encoded.switch()).toBe(xdr.ScValType.scvU32());
+        expect(encoded.switch().name).toBe('scvU32');
         expect(encoded.u32()).toBe(value);
       }
     });
@@ -93,7 +94,7 @@ describe('contract parameter ScVal encoders', () => {
     it('encodes zero and the largest safely representable u64', () => {
       for (const value of [0, Number.MAX_SAFE_INTEGER]) {
         const encoded = roundTrip(toScU64(value));
-        expect(encoded.switch()).toBe(xdr.ScValType.scvU64());
+        expect(encoded.switch().name).toBe('scvU64');
         expect(encoded.u64().toString()).toBe(String(value));
       }
     });
@@ -110,7 +111,7 @@ describe('contract parameter ScVal encoders', () => {
       2n ** 127n - 1n,
     ])('encodes signed i128 boundary %s', (value) => {
       const encoded = roundTrip(toScI128(value));
-      expect(encoded.switch()).toBe(xdr.ScValType.scvI128());
+      expect(encoded.switch().name).toBe('scvI128');
       expect(scValToNative(encoded)).toBe(value);
     });
 
@@ -123,7 +124,7 @@ describe('contract parameter ScVal encoders', () => {
   describe('collections, options, and enum variants', () => {
     it('encodes permission vectors as ordered u32 values', () => {
       const encoded = roundTrip(toScPermissionsVec([2, 0, 1]));
-      expect(encoded.switch()).toBe(xdr.ScValType.scvVec());
+      expect(encoded.switch().name).toBe('scvVec');
       expect(encoded.vec()!.map((item) => item.u32())).toEqual([2, 0, 1]);
       expect(toScPermissionsVec([]).vec()).toHaveLength(0);
     });
@@ -137,21 +138,21 @@ describe('contract parameter ScVal encoders', () => {
         xdr.ScValType.scvVoid()
       );
       const some = roundTrip(toScOption(42, (value: number) => toScU32(value)));
-      expect(some.switch()).toBe(xdr.ScValType.scvU32());
+      expect(some.switch().name).toBe('scvU32');
       expect(some.u32()).toBe(42);
     });
 
     it('encodes Owner as a symbol and SessionKey/Quorum as tagged vectors', () => {
       const owner = roundTrip(toScCallerIdentity(CallerIdentity.Owner));
-      expect(owner.switch()).toBe(xdr.ScValType.scvSymbol());
+      expect(owner.switch().name).toBe('scvSymbol');
       expect(owner.sym()).toBe('Owner');
 
       const sessionKey = toScCallerIdentity(CallerIdentity.SessionKey, toScBytesN32(accountId));
-      expect(sessionKey.switch()).toBe(xdr.ScValType.scvVec());
+      expect(sessionKey.switch().name).toBe('scvVec');
       expect(sessionKey.vec()![0].sym()).toBe('SessionKey');
 
       const quorum = toScCallerIdentity(CallerIdentity.Quorum, toScAddressVec([accountId]));
-      expect(quorum.switch()).toBe(xdr.ScValType.scvVec());
+      expect(quorum.switch().name).toBe('scvVec');
       expect(quorum.vec()![0].sym()).toBe('Quorum');
     });
 
@@ -163,17 +164,17 @@ describe('contract parameter ScVal encoders', () => {
     it('serializes and decodes bool ScVals using the Stellar SDK primitive', () => {
       for (const value of [true, false]) {
         const encoded = roundTrip(nativeToScVal(value, { type: 'bool' }));
-        expect(encoded.switch()).toBe(xdr.ScValType.scvBool());
+        expect(encoded.switch().name).toBe('scvBool');
         expect(encoded.b()).toBe(value);
       }
     });
 
     it('encodes operations as XDR byte entries', () => {
-      const operation = xdr.Operation.manageData({ dataName: 'test', dataValue: Buffer.from('value') });
+      const operation = Operation.manageData({ name: 'test', value: 'value' });
       const encoded = roundTrip(toScOperationsVec([operation]));
-      expect(encoded.switch()).toBe(xdr.ScValType.scvVec());
+      expect(encoded.switch().name).toBe('scvVec');
       expect(encoded.vec()).toHaveLength(1);
-      expect(encoded.vec()![0].switch()).toBe(xdr.ScValType.scvBytes());
+      expect(encoded.vec()![0].switch().name).toBe('scvBytes');
       expect(Buffer.from(encoded.vec()![0].bytes())).toEqual(Buffer.from(operation.toXDR()));
       expect(() => toScOperationsVec([])).toThrow(/non-empty array/);
     });
