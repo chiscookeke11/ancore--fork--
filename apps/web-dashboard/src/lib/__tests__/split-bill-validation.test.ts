@@ -315,14 +315,16 @@ describe('errorsByKey', () => {
   });
 });
 
-
 describe('validateShares — participant limits and duplicate wallets', () => {
   it('accepts the maximum supported participant count', () => {
-    const participants = Array.from({ length: MAX_SPLIT_PARTICIPANTS }, (_, index) => ({
-      key: `p${index}`,
-      share: '1',
-      address: `G${String(index).padStart(55, 'A')}`,
-    }));
+    const participants = Array.from(
+      { length: MAX_SPLIT_PARTICIPANTS },
+      (_, index) => ({
+        key: `p${index}`,
+        share: '1',
+        address: `G${String(index).padStart(55, 'A')}`,
+      })
+    );
     const result = validateShares({ mode: 'amount', participants, totalAmount: '50' });
 
     expect(result.valid).toBe(true);
@@ -330,10 +332,13 @@ describe('validateShares — participant limits and duplicate wallets', () => {
   });
 
   it('rejects a participant count above the configured maximum', () => {
-    const participants = Array.from({ length: MAX_SPLIT_PARTICIPANTS + 1 }, (_, index) => ({
-      key: `p${index}`,
-      share: '1',
-    }));
+    const participants = Array.from(
+      { length: MAX_SPLIT_PARTICIPANTS + 1 },
+      (_, index) => ({
+        key: `p${index}`,
+        share: '1',
+      })
+    );
     const result = validateShares({ mode: 'amount', participants, totalAmount: '51' });
 
     expect(result.valid).toBe(false);
